@@ -10,7 +10,8 @@ internal sealed interface PinnedTarget {
 }
 
 internal object PinnedTargetCodec {
-    private const val MAX_TEXT = 16_384
+    // 多圈布局可保存远超六项的混合目标；总量仍有界，避免异常偏好或广播载荷。
+    private const val MAX_TEXT = 262_144
     private const val MAX_PART = 1_024
     private val packagePattern = Regex("[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*")
     private val classPattern = Regex("[A-Za-z_$][A-Za-z0-9_$]*(\\.[A-Za-z_$][A-Za-z0-9_$]*)*")
@@ -73,7 +74,7 @@ internal object PinnedTargetCodec {
 
     fun normalize(targets: List<PinnedTarget>): List<PinnedTarget> =
         targets.asSequence().mapNotNull { decode(encode(it)) }.distinct()
-            .take(ModulePreferences.MAX_PINNED_APPS).toList()
+            .toList()
 
     fun encodeList(targets: List<PinnedTarget>): String = normalize(targets).joinToString("\n", transform = ::encode)
 }

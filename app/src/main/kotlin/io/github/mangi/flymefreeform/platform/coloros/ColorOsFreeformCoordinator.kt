@@ -17,6 +17,7 @@ import android.view.ViewConfiguration
 import android.view.WindowManager
 import io.github.mangi.flymefreeform.config.ModulePreferences
 import android.widget.Toast
+import io.github.mangi.flymefreeform.config.screenShortEdgeDp
 import io.github.mangi.flymefreeform.config.ModuleSettingsSnapshot
 import io.github.mangi.flymefreeform.config.PinnedTarget
 import io.github.mangi.flymefreeform.config.PinnedTargetCodec
@@ -64,7 +65,7 @@ internal class ColorOsFreeformCoordinator(
         ColorOsAppCatalog(context, catalogExecutor, logger) { snapshot ->
             handler.post {
                 // 后台任务完成时配置可能已再次变化，旧结果不得覆盖新外观。
-                if (snapshot.matches(lastSettings)) {
+                if (snapshot.matches(lastSettings, screenShortEdgeDp(context))) {
                     catalogSnapshot = snapshot
                     overlay?.updateRadialAppearance(snapshot)
                 }
@@ -184,13 +185,14 @@ internal class ColorOsFreeformCoordinator(
         repeatGestureToast = null
         val selectionChanged =
             settings.pinsSaved != lastSettings.pinsSaved ||
-                settings.pinnedTargets != lastSettings.pinnedTargets
+                settings.pinnedTargets != lastSettings.pinnedTargets ||
+                settings.radialMenu != lastSettings.radialMenu
         lastSettings = settings
         if (environmentState.isGestureAllowed(refreshKeyguard = true) && (settings.leftCornerEnabled || settings.rightCornerEnabled)) {
             val resuming = !pointerRegistered
             if ((resuming || selectionChanged) && settings.pinnedTargets.any { it is PinnedTarget.Sidebar }) entryCatalog.refresh()
             registerPointerListener()
-            if (resuming || selectionChanged || !catalogSnapshot.matches(settings) || catalogSnapshot.radialApps.isEmpty()) {
+            if (resuming || selectionChanged || !catalogSnapshot.matches(settings, screenShortEdgeDp(context)) || catalogSnapshot.radialApps.isEmpty()) {
                 appCatalog.refresh(settings, reloadApps = resuming || selectionChanged || catalogSnapshot.radialApps.isEmpty())
             }
         } else {

@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import io.github.mangi.flymefreeform.apps.SelectableEntry
+import io.github.mangi.flymefreeform.config.RadialMenuSettings
 import io.github.mangi.flymefreeform.config.OutsideTapCloseMode
 import io.github.mangi.flymefreeform.config.PinnedTarget
 import io.github.mangi.flymefreeform.framework.FrameworkConnectionState
@@ -32,6 +33,7 @@ internal fun FlymeFreeformNavHost(
     onModuleEnabledChange: (Boolean) -> Unit,
     onCornerSidesChange: (Boolean, Boolean) -> Unit,
     onCornerTriggerRangeChange: (Int) -> Unit,
+    onRadialMenuChange: (RadialMenuSettings) -> Unit,
     onOutsideTapCloseModeChange: (OutsideTapCloseMode) -> Unit,
     onHandleSwipeUpToMiniEnabledChange: (Boolean) -> Unit,
     onPauseInLandscapeChange: (Boolean) -> Unit,
@@ -69,6 +71,7 @@ internal fun FlymeFreeformNavHost(
                 onModuleEnabledChange = onModuleEnabledChange,
                 onCornerSidesChange = onCornerSidesChange,
                 onCornerTriggerRangeChange = onCornerTriggerRangeChange,
+                onRadialMenuChange = onRadialMenuChange,
                 onOutsideTapCloseModeChange = onOutsideTapCloseModeChange,
                 onHandleSwipeUpToMiniEnabledChange =
                     onHandleSwipeUpToMiniEnabledChange,

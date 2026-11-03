@@ -8,6 +8,19 @@ import org.junit.Test
 
 class ModuleSettingsSnapshotTest {
     @Test
+    fun mixedPinsSurviveCapacityReductionAndSettingsRoundTrip() {
+        val targets = (1..24).map { PinnedTarget.App("com.app$it", "com.app$it.Main") } +
+            PinnedTarget.Sidebar(PinnedTarget.Kind.CloneApp, "clone", 10)
+        val preferences = InMemoryPreferences()
+        ModuleSettingsSnapshot(pinsSaved = true, pinnedTargets = targets,
+            radialMenu = RadialMenuSettings(ringCount = 3)).writeTo(preferences.edit()).commit()
+        val restored = ModuleSettingsSnapshot.readFrom(preferences)
+        restored.copy(radialMenu = RadialMenuSettings()).writeTo(preferences.edit()).commit()
+        assertEquals(targets, ModuleSettingsSnapshot.readFrom(preferences).pinnedTargets)
+    }
+
+
+    @Test
     fun legacyPinsMigrateOnWriteAndKeepOrder() {
         val preferences = InMemoryPreferences(ModulePreferences.KEY_CORNER_PINS to "com.first/.A\ncom.second/.B")
         val migrated = ModuleSettingsSnapshot.readFrom(preferences)
@@ -43,6 +56,15 @@ class ModuleSettingsSnapshotTest {
         ModuleSettingsSnapshot(pinsSaved = true, pinnedTargets = targets).writeTo(preferences.edit()).commit()
         ModuleSettingsSnapshot.readFrom(preferences).copy(pauseInLandscape = false).writeTo(preferences.edit()).commit()
         assertEquals(targets, ModuleSettingsSnapshot.readFrom(preferences).pinnedTargets)
+    }
+
+    @Test
+    fun radialSettingsRoundTripAndIgnoreRetiredAppearanceKeys() {
+        val preferences = InMemoryPreferences()
+        val expected = ModuleSettingsSnapshot(radialMenu = RadialMenuSettings(32, 360, 18, 4))
+        expected.writeTo(preferences.edit()).commit()
+        assertEquals(expected, ModuleSettingsSnapshot.readFrom(preferences))
+        assertEquals(RadialMenuSettings(), ModuleSettingsSnapshot.readFrom(InMemoryPreferences()).radialMenu)
     }
 
     @Test

@@ -12,8 +12,10 @@ import android.graphics.drawable.Drawable
 import android.os.Process
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
-import io.github.mangi.flymefreeform.apps.AppSelectionPolicy
 import io.github.mangi.flymefreeform.apps.SelectableEntry
+import io.github.mangi.flymefreeform.apps.AppSelectionPolicy
+import io.github.mangi.flymefreeform.config.screenShortEdgeDp
+import io.github.mangi.flymefreeform.gesture.RadialMenuGeometry
 import io.github.mangi.flymefreeform.config.ModuleSettingsSnapshot
 import io.github.mangi.flymefreeform.config.PinnedTarget
 import java.text.Collator
@@ -33,10 +35,13 @@ internal data class AppCatalogSnapshot(
     val radialApps: List<RadialEntry> = emptyList(),
     val panelApps: List<RadialEntry> = emptyList(),
     val settings: ModuleSettingsSnapshot = ModuleSettingsSnapshot(),
+    val shortEdgeDp: Int = 400,
 ) {
-    fun matches(settings: ModuleSettingsSnapshot): Boolean =
+    fun matches(settings: ModuleSettingsSnapshot, shortEdgeDp: Int = this.shortEdgeDp): Boolean =
+        this.shortEdgeDp == shortEdgeDp &&
         this.settings.pinsSaved == settings.pinsSaved &&
-            this.settings.pinnedTargets == settings.pinnedTargets
+            this.settings.pinnedTargets == settings.pinnedTargets &&
+            this.settings.radialMenu == settings.radialMenu
 }
 
 /** 目录查询只在后台执行；发布后的 Bitmap 与列表供手势热路径只读。 */
@@ -66,7 +71,9 @@ internal class ColorOsAppCatalog(
             val content =
                 if (cached != null && cached.revision == revision &&
                     cached.settings.pinsSaved == settings.pinsSaved &&
-                    cached.settings.pinnedTargets == settings.pinnedTargets
+                    cached.settings.pinnedTargets == settings.pinnedTargets &&
+                    cached.settings.radialMenu == settings.radialMenu &&
+                    cached.shortEdgeDp == screenShortEdgeDp(context)
                 ) {
                     cached
                 } else {
@@ -87,15 +94,16 @@ internal class ColorOsAppCatalog(
                     }
                 }
             }
-            shapedRadial.forEach { entry ->
-                entry.icon.prepareToDraw()
-                entry.badge?.prepareToDraw()
+            shapedRadial.forEach {
+                it.icon.prepareToDraw()
+                it.badge?.prepareToDraw()
             }
-            if (revision == contentRevision.get()) publish(AppCatalogSnapshot(shapedRadial, content.panelApps, settings))
+            if (revision == contentRevision.get()) publish(AppCatalogSnapshot(shapedRadial, content.panelApps, settings, content.shortEdgeDp))
         }
     }
 
     private fun loadContent(settings: ModuleSettingsSnapshot, revision: Long): CatalogContent? {
+        val shortEdgeDp = screenShortEdgeDp(context)
         val launcherApps = context.getSystemService(LauncherApps::class.java) ?: return null
         val user = Process.myUserHandle()
         val activities = launcherApps.getActivityList(null, user)
@@ -124,7 +132,7 @@ internal class ColorOsAppCatalog(
                 recent = recents,
                 all = alphabetical,
                 identity = RadialEntry::target,
-                limit = io.github.mangi.flymefreeform.config.ModulePreferences.MAX_PINNED_APPS,
+                limit = RadialMenuGeometry.calculate(settings.radialMenu, shortEdgeDp).pinnedCapacity,
             )
         val excluded = radial.mapTo(HashSet(), RadialEntry::target)
         val panel =
@@ -152,7 +160,7 @@ internal class ColorOsAppCatalog(
             }
         }.toMap()
         panel.forEach { it.icon.prepareToDraw() }
-        return CatalogContent(revision, settings, radial, panel, sources)
+        return CatalogContent(revision, settings, radial, panel, sources, shortEdgeDp)
     }
 
     private data class CatalogContent(
@@ -161,6 +169,7 @@ internal class ColorOsAppCatalog(
         val radialApps: List<RadialEntry>,
         val panelApps: List<RadialEntry>,
         val radialSources: Map<PinnedTarget, Drawable>,
+        val shortEdgeDp: Int,
     )
 
     /** 在目录工作线程测量可见范围；左侧只平移角标，避免翻转其中的数字。 */

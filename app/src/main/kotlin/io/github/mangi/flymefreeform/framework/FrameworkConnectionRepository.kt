@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import io.github.libxposed.service.XposedService
 import io.github.libxposed.service.XposedServiceHelper
+import io.github.mangi.flymefreeform.config.RadialMenuSettings
 import io.github.mangi.flymefreeform.config.ModulePreferences
 import io.github.mangi.flymefreeform.config.ModuleSettingsSnapshot
 import io.github.mangi.flymefreeform.config.OutsideTapCloseMode
@@ -66,6 +67,9 @@ internal class FrameworkConnectionRepository(private val context: Context) {
                     ModulePreferences.coerceCornerTriggerRangeDp(rangeDp),
             )
         }
+
+    fun setRadialMenu(settings: RadialMenuSettings) =
+        updateSettings { it.copy(radialMenu = settings.sanitized()) }
 
     fun setOutsideTapCloseMode(mode: OutsideTapCloseMode) =
         updateSettings { it.copy(outsideTapCloseMode = mode) }

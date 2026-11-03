@@ -18,13 +18,21 @@ class PinnedTargetCodecTest {
     }
 
     @Test
-    fun legacyMigrationNormalizesEquivalentComponentsAndPreservesSixItemOrder() {
+    fun legacyMigrationNormalizesEquivalentComponentsAndPreservesAllItemsInOrder() {
         val raw = "com.example/.Main\ninvalid\ncom.example/com.example.Main\n" +
             (1..7).joinToString("\n") { "com.app$it/.Main" }
         val targets = PinnedTargetCodec.decodeLegacy(raw)
-        assertEquals(6, targets.size)
+        assertEquals(8, targets.size)
         assertEquals(PinnedTarget.App("com.example", "com.example.Main"), targets.first())
-        assertEquals(PinnedTarget.App("com.app5", "com.app5.Main"), targets.last())
+        assertEquals(PinnedTarget.App("com.app7", "com.app7.Main"), targets.last())
+    }
+
+    @Test
+    fun largeMultiRingSidebarListRoundTripsBeyondOldTextLimit() {
+        val targets = (1..100).map {
+            PinnedTarget.Sidebar(PinnedTarget.Kind.Shortcut, "entry$it" + "a".repeat(256), 0)
+        }
+        assertEquals(targets, PinnedTargetCodec.decodeList(PinnedTargetCodec.encodeList(targets)))
     }
 
     @Test
@@ -44,7 +52,7 @@ class PinnedTargetCodecTest {
             assertNull(value, PinnedTargetCodec.decode(value))
         }
         assertNull(PinnedTargetCodec.decode(PinnedTargetCodec.encode(PinnedTarget.Sidebar(PinnedTarget.Kind.Tool, "a".repeat(1_025), 0))))
-        assertEquals(emptyList<PinnedTarget>(), PinnedTargetCodec.decodeList("A|com.example/.A\n".repeat(2_000)))
+        assertEquals(emptyList<PinnedTarget>(), PinnedTargetCodec.decodeList("A|com.example/.A\n".repeat(20_000)))
     }
 
     @Test
