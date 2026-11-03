@@ -73,6 +73,7 @@ class ModuleSettingsSnapshotTest {
         val snapshot = ModuleSettingsSnapshot.readFrom(InMemoryPreferences())
 
         assertEquals(84, snapshot.cornerTriggerRangeDp)
+        assertEquals(550, snapshot.shortcutHoverDelayMs)
         assertEquals(OutsideTapCloseMode.SingleTap, snapshot.outsideTapCloseMode)
         assertTrue(snapshot.handleSwipeUpToMiniEnabled)
         assertTrue(snapshot.pauseInLandscape)
@@ -192,6 +193,28 @@ class ModuleSettingsSnapshotTest {
             OutsideTapCloseMode.Disabled,
             ModuleSettingsSnapshot.readFrom(preferences).outsideTapCloseMode,
         )
+    }
+
+    @Test
+    fun shortcutHoverDelaySurvivesUnrelatedSettingsWrites() {
+        val preferences = InMemoryPreferences()
+        ModuleSettingsSnapshot(shortcutHoverDelayMs = 850).writeTo(preferences.edit()).commit()
+        val restored = ModuleSettingsSnapshot.readFrom(preferences)
+        assertEquals(850, restored.shortcutHoverDelayMs)
+        restored.copy(pauseInLandscape = false).writeTo(preferences.edit()).commit()
+        assertEquals(850, ModuleSettingsSnapshot.readFrom(preferences).shortcutHoverDelayMs)
+    }
+
+    @Test
+    fun shortcutHoverDelayIsClampedWhenReadAndWritten() {
+        for ((input, expected) in listOf(Int.MIN_VALUE to 100, 0 to 100, 550 to 550, 2_000 to 2_000, Int.MAX_VALUE to 2_000)) {
+            val stored = InMemoryPreferences(ModulePreferences.KEY_SHORTCUT_HOVER_DELAY_MS to input)
+            assertEquals(expected, ModuleSettingsSnapshot.readFrom(stored).shortcutHoverDelayMs)
+            val written = InMemoryPreferences()
+            ModuleSettingsSnapshot(shortcutHoverDelayMs = input).writeTo(written.edit()).commit()
+            assertEquals(expected, written.getInt(ModulePreferences.KEY_SHORTCUT_HOVER_DELAY_MS, -1))
+            assertEquals(expected, ModuleSettingsSnapshot.readFrom(written).shortcutHoverDelayMs)
+        }
     }
 
     @Test

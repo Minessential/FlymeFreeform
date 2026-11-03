@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable
 import android.os.Process
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
+import io.github.mangi.flymefreeform.apps.AppShortcutSource
 import io.github.mangi.flymefreeform.apps.SelectableEntry
 import io.github.mangi.flymefreeform.apps.AppSelectionPolicy
 import io.github.mangi.flymefreeform.config.screenShortEdgeDp
@@ -29,6 +30,7 @@ internal data class RadialEntry(
     val icon: Bitmap,
     val badge: Bitmap? = null,
     val badgeLeftOffsetFraction: Float = 0f,
+    val shortcutSource: AppShortcutSource? = null,
 )
 
 internal data class AppCatalogSnapshot(
@@ -116,7 +118,7 @@ internal class ColorOsAppCatalog(
                 .toList()
         val sidebar = sidebarEntries
         val nativeEntries = sidebar.map {
-            RadialEntry(it.target, it.label, it.icon, it.badge, it.badge?.leftOffsetFraction() ?: 0f)
+            RadialEntry(it.target, it.label, it.icon, it.badge, it.badge?.leftOffsetFraction() ?: 0f, it.shortcutSource)
         }
         val byComponent = (entries + nativeEntries).associateBy(RadialEntry::target)
         val recents = recentComponents().map { it.toTarget() }.mapNotNull(byComponent::get).distinctBy(RadialEntry::target)
@@ -210,6 +212,8 @@ internal class ColorOsAppCatalog(
                 target = info.componentName.toTarget(),
                 label = info.label?.toString()?.trim().orEmpty().ifEmpty { info.componentName.packageName },
                 icon = info.getIcon(context.resources.displayMetrics.densityDpi).toBitmap(),
+                shortcutSource = AppShortcutSource(info.componentName.packageName, info.componentName.className,
+                    info.applicationInfo.uid / 100_000),
             )
         } catch (_: RuntimeException) {
             null

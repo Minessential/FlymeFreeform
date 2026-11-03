@@ -7,6 +7,7 @@ internal data class ModuleSettingsSnapshot(
     val leftCornerEnabled: Boolean = ModulePreferences.DEFAULT_CORNER_ENABLED,
     val rightCornerEnabled: Boolean = ModulePreferences.DEFAULT_CORNER_ENABLED,
     val cornerTriggerRangeDp: Int = ModulePreferences.DEFAULT_CORNER_TRIGGER_RANGE_DP,
+    val shortcutHoverDelayMs: Int = ModulePreferences.DEFAULT_SHORTCUT_HOVER_DELAY_MS,
     val radialMenu: RadialMenuSettings = RadialMenuSettings(),
     val pinsSaved: Boolean = false,
     val pinnedTargets: List<PinnedTarget> = emptyList(),
@@ -29,6 +30,10 @@ internal data class ModuleSettingsSnapshot(
     fun writeTo(editor: SharedPreferences.Editor): SharedPreferences.Editor {
         val radial = radialMenu.sanitized()
         editor
+            .putInt(
+                ModulePreferences.KEY_SHORTCUT_HOVER_DELAY_MS,
+                ModulePreferences.coerceShortcutHoverDelayMs(shortcutHoverDelayMs),
+            )
             .putInt(ModulePreferences.KEY_RADIAL_ICON_SIZE_DP, radial.iconSizeDp)
             .putInt(ModulePreferences.KEY_RADIAL_RADIUS_DP, radial.radiusDp)
             .putInt(ModulePreferences.KEY_RADIAL_RING_GAP_DP, radial.ringGapDp)
@@ -115,6 +120,12 @@ internal data class ModuleSettingsSnapshot(
                 leftCornerEnabled = if (bothCornersDisabled) true else leftEnabled,
                 rightCornerEnabled = if (bothCornersDisabled) true else rightEnabled,
                 cornerTriggerRangeDp = cornerTriggerRangeDp,
+                shortcutHoverDelayMs = ModulePreferences.coerceShortcutHoverDelayMs(
+                    preferences.getInt(
+                        ModulePreferences.KEY_SHORTCUT_HOVER_DELAY_MS,
+                        ModulePreferences.DEFAULT_SHORTCUT_HOVER_DELAY_MS,
+                    ),
+                ),
                 radialMenu = RadialMenuSettings(
                     iconSizeDp = preferences.getInt(ModulePreferences.KEY_RADIAL_ICON_SIZE_DP, radialDefaults.iconSizeDp),
                     radiusDp = preferences.getInt(ModulePreferences.KEY_RADIAL_RADIUS_DP, radialDefaults.radiusDp),

@@ -33,6 +33,7 @@ import androidx.compose.material.icons.rounded.SportsEsports
 import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material.icons.rounded.SwipeRight
 import androidx.compose.material.icons.rounded.SwipeUp
+import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -93,6 +94,7 @@ internal fun ControlScreen(
     onModuleEnabledChange: (Boolean) -> Unit,
     onCornerSidesChange: (Boolean, Boolean) -> Unit,
     onCornerTriggerRangeChange: (Int) -> Unit,
+    onShortcutHoverDelayChange: (Int) -> Unit,
     onRadialMenuChange: (RadialMenuSettings) -> Unit,
     onOutsideTapCloseModeChange: (OutsideTapCloseMode) -> Unit,
     onHandleSwipeUpToMiniEnabledChange: (Boolean) -> Unit,
@@ -181,6 +183,7 @@ internal fun ControlScreen(
                             featuresEnabled = featuresEnabled,
                             onCornerSidesChange = onCornerSidesChange,
                             onCornerTriggerRangeChange = onCornerTriggerRangeChange,
+                            onShortcutHoverDelayChange = onShortcutHoverDelayChange,
                             onCornerRangePreviewChange = { cornerRangePreviewDp = it },
                             onNavigateToPinnedApps = onNavigateToPinnedApps,
                             shortEdgeDp = shortEdgeDp,
@@ -394,6 +397,7 @@ private fun SettingsCard(
     featuresEnabled: Boolean,
     onCornerSidesChange: (Boolean, Boolean) -> Unit,
     onCornerTriggerRangeChange: (Int) -> Unit,
+    onShortcutHoverDelayChange: (Int) -> Unit,
     onCornerRangePreviewChange: (Int?) -> Unit,
     onNavigateToPinnedApps: () -> Unit,
     shortEdgeDp: Int,
@@ -446,6 +450,19 @@ private fun SettingsCard(
             onPreviewChange = onCornerRangePreviewChange,
             onCommit = onCornerTriggerRangeChange,
         )
+        RemoteDpSliderPreference(
+            icon = Icons.Rounded.Timer,
+            confirmedValue = state.settings.shortcutHoverDelayMs,
+            isUpdating = state.isUpdating,
+            enabled = featuresEnabled,
+            title = stringResource(R.string.shortcut_hover_delay_title),
+            summary = stringResource(R.string.shortcut_hover_delay_summary),
+            range = ModulePreferences.MIN_SHORTCUT_HOVER_DELAY_MS..ModulePreferences.MAX_SHORTCUT_HOVER_DELAY_MS,
+            stepSize = ModulePreferences.SHORTCUT_HOVER_DELAY_STEP_MS,
+            valueFormat = R.string.ms_value,
+            onPreviewChange = {},
+            onCommit = onShortcutHoverDelayChange,
+        )
         ArrowPreference(
             title = stringResource(R.string.radial_apps_title),
             summary = appsSummary,
@@ -468,6 +485,8 @@ internal fun RemoteDpSliderPreference(
     onCommit: (Int) -> Unit,
     range: IntRange = ModulePreferences.MIN_CORNER_TRIGGER_RANGE_DP..ModulePreferences.MAX_CORNER_TRIGGER_RANGE_DP,
     unitIsDp: Boolean = true,
+    stepSize: Int = 1,
+    @StringRes valueFormat: Int = if (unitIsDp) R.string.dp_value else R.string.radial_ring_count_value,
 ) {
     var draftValue by rememberSaveable { mutableFloatStateOf(confirmedValue.toFloat()) }
     var isDragging by remember { mutableStateOf(false) }
@@ -482,20 +501,20 @@ internal fun RemoteDpSliderPreference(
         value = draftValue.coerceIn(range.first.toFloat(), range.last.toFloat()),
         onValueChange = { value ->
             isDragging = true
-            val draft = value.roundToInt().coerceIn(range)
+            val draft = (range.first + ((value - range.first) / stepSize).roundToInt() * stepSize).coerceIn(range)
             draftValue = draft.toFloat()
             onPreviewChange(draft)
         },
         title = title,
         summary = summary,
         valueText = stringResource(
-            if (unitIsDp) R.string.dp_value else R.string.radial_ring_count_value,
+            valueFormat,
             draftValue.roundToInt().coerceIn(range),
         ),
         enabled = enabled,
         startAction = { PreferenceIcon(icon, enabled) },
         valueRange = range.first.toFloat()..range.last.toFloat(),
-        steps = (range.last - range.first - 1).coerceAtLeast(0),
+        steps = ((range.last - range.first) / stepSize - 1).coerceAtLeast(0),
         onValueChangeFinished = {
             isDragging = false
             onPreviewChange(null)

@@ -12,6 +12,7 @@ import android.os.IInterface
 import android.os.UserHandle
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
+import io.github.mangi.flymefreeform.apps.AppShortcutSource
 import io.github.mangi.flymefreeform.apps.SelectableEntry
 import io.github.mangi.flymefreeform.config.PinnedTarget
 import io.github.mangi.flymefreeform.config.PinnedTargetCodec
@@ -71,6 +72,10 @@ internal class ColorOsSidebarEntries(private val context: Context, loader: Class
             packageName.take(256),
             icon(bean, target, packageName, cloneInfo),
             cloneInfo?.let(::cloneBadge),
+            cloneInfo?.let {
+                AppShortcutSource.forClone(target, it.componentName.packageName, it.componentName.className,
+                    cloneUserId.call(bean) as Int)
+            },
         )
     }.distinctBy(SelectableEntry::target).also { require(it.size <= SidebarEntryProtocol.MAX_ENTRIES) }
 

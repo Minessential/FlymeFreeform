@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Message
 import android.os.Messenger
+import io.github.mangi.flymefreeform.apps.AppShortcutSource
 import io.github.mangi.flymefreeform.apps.SelectableEntry
 import io.github.mangi.flymefreeform.config.PinnedTarget
 import io.github.mangi.flymefreeform.config.PinnedTargetCodec
@@ -34,6 +35,8 @@ internal object SidebarEntryProtocol {
     private const val PACKAGE = "package"
     private const val ICON = "icon"
     private const val BADGE = "badge"
+    private const val SHORTCUT_ACTIVITY = "shortcutActivity"
+    private const val SHORTCUT_USER = "shortcutUser"
     const val TIMEOUT_MS = 7_000L
     const val MAX_ENTRIES = 256
     const val ICON_SIZE = 96
@@ -53,6 +56,10 @@ internal object SidebarEntryProtocol {
         data.putString(PACKAGE, entry.packageName.take(256))
         data.putParcelable(ICON, entry.icon)
         entry.badge?.let { data.putParcelable(BADGE, it) }
+        entry.shortcutSource?.let {
+            data.putString(SHORTCUT_ACTIVITY, it.className)
+            data.putInt(SHORTCUT_USER, it.userId)
+        }
     }
 
     fun readEntry(data: Bundle, userId: Int): SelectableEntry? {
@@ -66,7 +73,12 @@ internal object SidebarEntryProtocol {
                 ?.takeIf { validIcon(it) && it.width == icon.width && it.height == icon.height }
                 ?: return null
         } else null
-        return SelectableEntry(target, label, pkg, icon, badge)
+        // 旧目录没有可选字段时只禁用分身快捷菜单，不影响原有条目启动。
+        val shortcutSource = if (data.containsKey(SHORTCUT_ACTIVITY) || data.containsKey(SHORTCUT_USER)) {
+            AppShortcutSource.forClone(target, pkg, data.getString(SHORTCUT_ACTIVITY), data.getInt(SHORTCUT_USER, -1))
+                ?: return null
+        } else null
+        return SelectableEntry(target, label, pkg, icon, badge, shortcutSource)
     }
 
     private fun validIcon(bitmap: Bitmap): Boolean =

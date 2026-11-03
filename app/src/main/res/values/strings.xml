@@ -97,4 +97,7 @@
     <string name="radial_ring_count_title">圈数</string>
     <string name="radial_ring_count_summary">当前 %1$d 圈，按图标尺寸、半径和圈间距最多可容纳 %2$d 圈</string>
     <string name="radial_ring_count_value">%1$d 圈</string>
+    <string name="shortcut_hover_delay_title">Shortcuts 悬停时长</string>
+    <string name="shortcut_hover_delay_summary">悬停在普通应用或分身图标上多久后显示快捷操作菜单</string>
+    <string name="ms_value">%1$d 毫秒</string>
 </resources>

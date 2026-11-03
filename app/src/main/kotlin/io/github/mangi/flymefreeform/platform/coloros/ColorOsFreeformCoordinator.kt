@@ -60,6 +60,13 @@ internal class ColorOsFreeformCoordinator(
     private var repeatGestureToast: Toast? = null
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop.toFloat()
     private val launcher = ColorOsFreeformLauncher(context)
+    private val shortcuts = ColorOsAppShortcuts(context)
+    // 快捷操作查询不与目录刷新争用队列，避免悬停挤掉最新的固定项或布局更新。
+    private val shortcutExecutor = ThreadPoolExecutor(
+        1, 1, 0L, TimeUnit.MILLISECONDS, ArrayBlockingQueue<Runnable>(1),
+        { task -> Thread(task, "FlymeFreeform-Shortcuts") },
+        ThreadPoolExecutor.DiscardOldestPolicy(),
+    )
     private val sidebar = ColorOsSidebarClient(context, handler, logger)
     private val appCatalog =
         ColorOsAppCatalog(context, catalogExecutor, logger) { snapshot ->
@@ -417,7 +424,10 @@ internal class ColorOsFreeformCoordinator(
                 val selected = overlay?.updateGesture(action.x, action.y)
                 gestureEngine.setSelection(selected)
             }
-            is GestureAction.Commit -> overlay?.finishGesture()
+            is GestureAction.Commit -> {
+                overlay?.updateGesture(event.x, event.y)
+                overlay?.finishGesture()
+            }
             GestureAction.Cancel -> overlay?.cancelGesture()
             GestureAction.Ignore, GestureAction.PassThrough -> Unit
         }
@@ -455,6 +465,7 @@ internal class ColorOsFreeformCoordinator(
             view.begin(
                 side = side,
                 catalog = catalogSnapshot,
+                shortcutHoverDelayMs = lastSettings.shortcutHoverDelayMs,
                 x = x,
                 y = y,
             )
@@ -502,6 +513,38 @@ internal class ColorOsFreeformCoordinator(
         removeOverlay()
         handler.post {
             if (generation == pointerGeneration) launchCommittedEntry(entry)
+        }
+    }
+
+    override fun onShortcutsRequested(entry: RadialEntry, onResult: (List<AppShortcut>) -> Unit) {
+        val source = entry.shortcutSource ?: run {
+            onResult(emptyList())
+            return
+        }
+        val view = overlay ?: return
+        val generation = pointerGeneration
+        shortcutExecutor.execute {
+            val result = shortcuts.forActivity(source)
+            handler.post {
+                if (generation == pointerGeneration && overlay === view && isGestureEnvironmentAllowed()) onResult(result)
+            }
+        }
+    }
+
+    override fun onShortcutCommitted(shortcut: AppShortcut) {
+        entryLaunchGeneration++
+        entryCatalog.cancelLaunch()
+        val generation = pointerGeneration
+        activeEnvironmentApproved = false
+        gestureEngine.cancel()
+        removeOverlay()
+        handler.post {
+            if (generation != pointerGeneration || !isGestureEnvironmentAllowed()) return@post
+            when (val result = launcher.launch(shortcut)) {
+                FreeformLaunchResult.Started -> Unit
+                FreeformLaunchResult.TargetUnavailable -> logger(Log.WARN, "FREEFORM_SHORTCUT_TARGET_UNAVAILABLE", null)
+                is FreeformLaunchResult.Failed -> logger(Log.WARN, result.diagnosticCode, result.cause)
+            }
         }
     }
 

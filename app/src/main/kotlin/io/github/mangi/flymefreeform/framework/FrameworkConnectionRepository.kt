@@ -68,6 +68,11 @@ internal class FrameworkConnectionRepository(private val context: Context) {
             )
         }
 
+    fun setShortcutHoverDelayMs(delayMs: Int) =
+        updateSettings {
+            it.copy(shortcutHoverDelayMs = ModulePreferences.coerceShortcutHoverDelayMs(delayMs))
+        }
+
     fun setRadialMenu(settings: RadialMenuSettings) =
         updateSettings { it.copy(radialMenu = settings.sanitized()) }
 

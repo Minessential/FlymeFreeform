@@ -12,6 +12,11 @@ internal object ModulePreferences {
     const val KEY_LEFT_CORNER_ENABLED = "corner_left_enabled"
     const val KEY_RIGHT_CORNER_ENABLED = "corner_right_enabled"
     const val KEY_CORNER_TRIGGER_RANGE_DP = "corner_trigger_range_dp"
+    const val KEY_SHORTCUT_HOVER_DELAY_MS = "shortcut_hover_delay_ms"
+    const val DEFAULT_SHORTCUT_HOVER_DELAY_MS = 550
+    const val MIN_SHORTCUT_HOVER_DELAY_MS = 100
+    const val MAX_SHORTCUT_HOVER_DELAY_MS = 2_000
+    const val SHORTCUT_HOVER_DELAY_STEP_MS = 50
     const val KEY_PINNED_TARGETS = "corner_targets_v2"
     const val KEY_CORNER_PINS = "corner_pins_v1"
     const val KEY_OUTSIDE_TAP_CLOSE_MODE = "outside_tap_close_mode_v1"
@@ -35,6 +40,9 @@ internal object ModulePreferences {
     const val KEY_RADIAL_RING_GAP_DP = "radial_ring_gap_dp_v2"
     const val KEY_RADIAL_RING_COUNT = "radial_ring_count_v2"
     const val KEY_RADIAL_ITEM_GAP_DP = "radial_item_gap_dp_v1"
+
+    fun coerceShortcutHoverDelayMs(value: Int): Int =
+        value.coerceIn(MIN_SHORTCUT_HOVER_DELAY_MS, MAX_SHORTCUT_HOVER_DELAY_MS)
 
     fun coerceCornerTriggerRangeDp(value: Int): Int =
         value.coerceIn(MIN_CORNER_TRIGGER_RANGE_DP, MAX_CORNER_TRIGGER_RANGE_DP)

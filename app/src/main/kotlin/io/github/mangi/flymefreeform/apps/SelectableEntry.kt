@@ -10,4 +10,5 @@ internal data class SelectableEntry(
     val packageName: String,
     val icon: Bitmap,
     val badge: Bitmap? = null,
+    val shortcutSource: AppShortcutSource? = null,
 )
