@@ -92,6 +92,8 @@ internal fun ControlScreen(
     onHandleSwipeUpToMiniEnabledChange: (Boolean) -> Unit,
     onPauseInLandscapeChange: (Boolean) -> Unit,
     onPauseInGameModeChange: (Boolean) -> Unit,
+    onPreventMistouchInLandscapeChange: (Boolean) -> Unit,
+    onPreventMistouchInGameModeChange: (Boolean) -> Unit,
     onRequestScopes: () -> Unit,
     onNavigateToPinnedApps: () -> Unit,
 ) {
@@ -185,6 +187,8 @@ internal fun ControlScreen(
                             featuresEnabled = featuresEnabled,
                             onPauseInLandscapeChange = onPauseInLandscapeChange,
                             onPauseInGameModeChange = onPauseInGameModeChange,
+                            onPreventMistouchInLandscapeChange = onPreventMistouchInLandscapeChange,
+                            onPreventMistouchInGameModeChange = onPreventMistouchInGameModeChange,
                         )
                     }
                     item(key = "about") { AboutCard() }
@@ -207,6 +211,8 @@ private fun EnvironmentCard(
     featuresEnabled: Boolean,
     onPauseInLandscapeChange: (Boolean) -> Unit,
     onPauseInGameModeChange: (Boolean) -> Unit,
+    onPreventMistouchInLandscapeChange: (Boolean) -> Unit,
+    onPreventMistouchInGameModeChange: (Boolean) -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         SwitchPreference(
@@ -218,12 +224,38 @@ private fun EnvironmentCard(
             startAction = { PreferenceIcon(Icons.Rounded.ScreenRotation, featuresEnabled) },
         )
         SwitchPreference(
+            checked = state.settings.preventMistouchInLandscape,
+            onCheckedChange = onPreventMistouchInLandscapeChange,
+            title = stringResource(R.string.prevent_mistouch_in_landscape_title),
+            summary = stringResource(R.string.prevent_mistouch_in_landscape_summary),
+            enabled = featuresEnabled && !state.settings.pauseInLandscape,
+            startAction = {
+                PreferenceIcon(
+                    Icons.Rounded.ScreenRotation,
+                    featuresEnabled && !state.settings.pauseInLandscape,
+                )
+            },
+        )
+        SwitchPreference(
             checked = state.settings.pauseInGameMode,
             onCheckedChange = onPauseInGameModeChange,
             title = stringResource(R.string.pause_in_game_mode_title),
             summary = stringResource(R.string.pause_in_game_mode_summary),
             enabled = featuresEnabled,
             startAction = { PreferenceIcon(Icons.Rounded.SportsEsports, featuresEnabled) },
+        )
+        SwitchPreference(
+            checked = state.settings.preventMistouchInGameMode,
+            onCheckedChange = onPreventMistouchInGameModeChange,
+            title = stringResource(R.string.prevent_mistouch_in_game_mode_title),
+            summary = stringResource(R.string.prevent_mistouch_in_game_mode_summary),
+            enabled = featuresEnabled && !state.settings.pauseInGameMode,
+            startAction = {
+                PreferenceIcon(
+                    Icons.Rounded.SportsEsports,
+                    featuresEnabled && !state.settings.pauseInGameMode,
+                )
+            },
         )
     }
 }

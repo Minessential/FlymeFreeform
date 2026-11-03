@@ -79,6 +79,12 @@ internal class FrameworkConnectionRepository(private val context: Context) {
     fun setPauseInGameMode(enabled: Boolean) =
         updateSettings { it.copy(pauseInGameMode = enabled) }
 
+    fun setPreventMistouchInLandscape(enabled: Boolean) =
+        updateSettings { it.copy(preventMistouchInLandscape = enabled) }
+
+    fun setPreventMistouchInGameMode(enabled: Boolean) =
+        updateSettings { it.copy(preventMistouchInGameMode = enabled) }
+
     fun setPinnedTargets(components: List<PinnedTarget>) =
         updateSettings {
             it.copy(
