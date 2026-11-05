@@ -19,6 +19,8 @@ internal class SystemServerHookInstaller(
     fun install(classLoader: ClassLoader) {
         OutsideTapCloseHookInstaller(module, configuration, environment).install(classLoader)
         HandleSwipeUpHookInstaller(module, configuration, environment).install(classLoader)
+        CaptionStyleHookInstaller(module, configuration).install(classLoader)
+        CaptionHandleInteractionHookInstaller(module, configuration).install(classLoader)
         try {
             // 厂商初始化入口只能反射定位；缺失时保留系统启动流程。
             @SuppressLint("PrivateApi")
