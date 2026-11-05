@@ -66,8 +66,10 @@
 
     <string name="about_version_title">版本</string>
     <string name="about_version_format">%1$s (%2$s)</string>
-    <string name="about_github_title">GitHub</string>
-    <string name="about_github_summary">Mangi-11/FlymeFreeform</string>
+    <string name="about_github_current_title">当前仓库（GitHub）</string>
+    <string name="about_github_current_summary">Minessential/FlymeFreeform</string>
+    <string name="about_github_upstream_title">上游仓库（GitHub）</string>
+    <string name="about_github_upstream_summary">Mangi-11/FlymeFreeform</string>
     <string name="pause_in_landscape_title">横屏时暂停</string>
     <string name="pause_in_landscape_summary">横屏时暂停模块增强，恢复竖屏后自动启用</string>
     <string name="pause_in_game_mode_title">游戏模式时暂停</string>

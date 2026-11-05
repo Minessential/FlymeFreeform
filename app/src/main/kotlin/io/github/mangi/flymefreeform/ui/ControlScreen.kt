@@ -590,6 +590,13 @@ private fun CornerRangePreview(
 @Composable
 private fun AboutCard() {
     val uriHandler = LocalUriHandler.current
+    val openRepository: (String) -> Unit = { url ->
+        try {
+            uriHandler.openUri(url)
+        } catch (_: IllegalArgumentException) {
+        } catch (_: ActivityNotFoundException) {
+        }
+    }
     Card(modifier = Modifier.fillMaxWidth()) {
         BasicComponent(
             title = stringResource(R.string.about_version_title),
@@ -607,15 +614,15 @@ private fun AboutCard() {
             startAction = { PreferenceIcon(Icons.Rounded.Info) },
         )
         ArrowPreference(
-            title = stringResource(R.string.about_github_title),
-            summary = stringResource(R.string.about_github_summary),
-            onClick = {
-                try {
-                    uriHandler.openUri(GITHUB_REPO_URL)
-                } catch (_: IllegalArgumentException) {
-                } catch (_: ActivityNotFoundException) {
-                }
-            },
+            title = stringResource(R.string.about_github_current_title),
+            summary = stringResource(R.string.about_github_current_summary),
+            onClick = { openRepository(CURRENT_REPO_URL) },
+            startAction = { PreferenceIcon(Icons.Rounded.Code) },
+        )
+        ArrowPreference(
+            title = stringResource(R.string.about_github_upstream_title),
+            summary = stringResource(R.string.about_github_upstream_summary),
+            onClick = { openRepository(UPSTREAM_REPO_URL) },
             startAction = { PreferenceIcon(Icons.Rounded.Code) },
         )
     }
@@ -672,7 +679,8 @@ private fun FrameworkConnectionIssue?.errorSummary(): Int =
 
 private data class FrameworkPresentation(val label: String, val summary: String)
 
-private const val GITHUB_REPO_URL = "https://github.com/Mangi-11/FlymeFreeform"
+private const val CURRENT_REPO_URL = "https://github.com/Minessential/FlymeFreeform"
+private const val UPSTREAM_REPO_URL = "https://github.com/Mangi-11/FlymeFreeform"
 
 internal val ScreenHorizontalMargin = 12.dp
 internal val ScreenContentMaxWidth = 600.dp
