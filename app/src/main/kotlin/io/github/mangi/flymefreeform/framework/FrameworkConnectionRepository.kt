@@ -51,6 +51,9 @@ internal class FrameworkConnectionRepository(private val context: Context) {
     fun setModuleEnabled(enabled: Boolean) =
         updateSettings { it.copy(enabled = enabled) }
 
+    fun setHideSystemSidebarUi(enabled: Boolean) =
+        updateSettings { it.copy(hideSystemSidebarUi = enabled) }
+
     fun setCornerSides(leftEnabled: Boolean, rightEnabled: Boolean) =
         updateSettings {
             val bothDisabled = !leftEnabled && !rightEnabled

@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
                     onRefreshCatalog = sidebarRepository::refresh,
                     onCancelCatalog = sidebarRepository::cancel,
                     onModuleEnabledChange = repository::setModuleEnabled,
+                    onHideSystemSidebarUiChange = repository::setHideSystemSidebarUi,
                     onCornerSidesChange = repository::setCornerSides,
                     onCornerTriggerRangeChange = repository::setCornerTriggerRangeDp,
                     onShortcutHoverDelayChange = repository::setShortcutHoverDelayMs,

@@ -80,6 +80,18 @@ class ModuleSettingsSnapshotTest {
         assertTrue(snapshot.pauseInGameMode)
         assertFalse(snapshot.preventMistouchInLandscape)
         assertFalse(snapshot.preventMistouchInGameMode)
+        assertFalse(snapshot.hideSystemSidebarUi)
+    }
+
+    @Test
+    fun systemSidebarUiSettingRoundTripsIndependentlyOfModuleSwitch() {
+        val preferences = InMemoryPreferences()
+        val enabledSetting = ModuleSettingsSnapshot(enabled = false, hideSystemSidebarUi = true)
+        enabledSetting.writeTo(preferences.edit()).commit()
+
+        assertEquals(enabledSetting, ModuleSettingsSnapshot.readFrom(preferences))
+        enabledSetting.copy(enabled = true).writeTo(preferences.edit()).commit()
+        assertTrue(ModuleSettingsSnapshot.readFrom(preferences).hideSystemSidebarUi)
     }
 
     @Test

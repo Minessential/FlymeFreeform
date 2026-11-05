@@ -26,6 +26,8 @@
     <string name="module_enabled_summary_waiting">连接框架后可更改</string>
     <string name="module_enabled_summary_updating">正在同步配置</string>
     <string name="module_enabled_summary_scope">补全所需作用域后可更改</string>
+    <string name="hide_system_sidebar_ui_title">隐藏系统侧边栏界面</string>
+    <string name="hide_system_sidebar_ui_summary">隐藏智能侧边栏浮标并释放其使用的边缘手势区域</string>
     <string name="corner_trigger_side_title">触发位置</string>
     <string name="corner_trigger_side_summary">从屏幕底角斜向内上滑呼出扇形菜单</string>
     <string name="corner_trigger_side_both">左右下角</string>

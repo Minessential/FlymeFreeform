@@ -9,6 +9,7 @@ internal object ModulePreferences {
     const val EXTRA_PINS_SAVED = "pins_saved"
     const val EXTRA_MODULE_ENABLED = "module_enabled"
     const val KEY_MODULE_ENABLED = "enabled"
+    const val KEY_HIDE_SYSTEM_SIDEBAR_UI = "hide_system_sidebar_ui"
     const val KEY_LEFT_CORNER_ENABLED = "corner_left_enabled"
     const val KEY_RIGHT_CORNER_ENABLED = "corner_right_enabled"
     const val KEY_CORNER_TRIGGER_RANGE_DP = "corner_trigger_range_dp"
@@ -27,6 +28,7 @@ internal object ModulePreferences {
     const val KEY_PREVENT_MISTOUCH_IN_GAME_MODE = "prevent_mistouch_in_game_mode"
     const val DEFAULT_PREVENT_MISTOUCH = false
     const val DEFAULT_ENABLED = false
+    const val DEFAULT_HIDE_SYSTEM_SIDEBAR_UI = false
     const val DEFAULT_CORNER_ENABLED = true
     const val DEFAULT_CORNER_TRIGGER_RANGE_DP = 84
     val DEFAULT_OUTSIDE_TAP_CLOSE_MODE = OutsideTapCloseMode.SingleTap

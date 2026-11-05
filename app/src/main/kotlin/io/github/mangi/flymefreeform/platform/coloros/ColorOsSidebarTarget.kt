@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 internal object ColorOsSidebarTarget {
     const val PACKAGE_NAME = "com.coloros.smartsidebar"
     const val PROCESS_NAME = "$PACKAGE_NAME:ui"
+    const val HOST_PROCESS_NAME = "$PACKAGE_NAME:edgepanel"
     const val SERVICE_CLASS = "com.oplus.smartsidebar.panelview.edgepanel.UIService"
     const val BIND_ACTION = "io.github.mangi.flymefreeform.action.BIND_ALL_APPS_V1"
     const val REQUIRED_PERMISSION = "oppo.permission.OPPO_COMPONENT_SAFE"

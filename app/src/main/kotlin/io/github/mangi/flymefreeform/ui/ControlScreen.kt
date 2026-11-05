@@ -92,6 +92,7 @@ import top.yukonga.miuix.kmp.utils.scrollEndHaptic
 internal fun ControlScreen(
     state: FrameworkConnectionState,
     onModuleEnabledChange: (Boolean) -> Unit,
+    onHideSystemSidebarUiChange: (Boolean) -> Unit,
     onCornerSidesChange: (Boolean, Boolean) -> Unit,
     onCornerTriggerRangeChange: (Int) -> Unit,
     onShortcutHoverDelayChange: (Int) -> Unit,
@@ -174,6 +175,7 @@ internal fun ControlScreen(
                         RuntimeCard(
                             state = state,
                             onModuleEnabledChange = onModuleEnabledChange,
+                            onHideSystemSidebarUiChange = onHideSystemSidebarUiChange,
                             onRequestScopes = onRequestScopes,
                         )
                     }
@@ -333,6 +335,7 @@ private fun WindowInteractionCard(
 private fun RuntimeCard(
     state: FrameworkConnectionState,
     onModuleEnabledChange: (Boolean) -> Unit,
+    onHideSystemSidebarUiChange: (Boolean) -> Unit,
     onRequestScopes: () -> Unit,
 ) {
     val presentation = frameworkPresentation(state)
@@ -356,6 +359,16 @@ private fun RuntimeCard(
             enabled = state.canChangeSettings,
             startAction = {
                 PreferenceIcon(Icons.Rounded.PowerSettingsNew, state.canChangeSettings)
+            },
+        )
+        SwitchPreference(
+            checked = state.settings.hideSystemSidebarUi,
+            onCheckedChange = onHideSystemSidebarUiChange,
+            title = stringResource(R.string.hide_system_sidebar_ui_title),
+            summary = stringResource(R.string.hide_system_sidebar_ui_summary),
+            enabled = state.canChangeSettings && state.settings.enabled,
+            startAction = {
+                PreferenceIcon(Icons.Rounded.SwipeRight, state.canChangeSettings && state.settings.enabled)
             },
         )
         BasicComponent(

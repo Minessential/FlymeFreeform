@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 
 internal data class ModuleSettingsSnapshot(
     val enabled: Boolean = ModulePreferences.DEFAULT_ENABLED,
+    val hideSystemSidebarUi: Boolean = ModulePreferences.DEFAULT_HIDE_SYSTEM_SIDEBAR_UI,
     val leftCornerEnabled: Boolean = ModulePreferences.DEFAULT_CORNER_ENABLED,
     val rightCornerEnabled: Boolean = ModulePreferences.DEFAULT_CORNER_ENABLED,
     val cornerTriggerRangeDp: Int = ModulePreferences.DEFAULT_CORNER_TRIGGER_RANGE_DP,
@@ -40,6 +41,7 @@ internal data class ModuleSettingsSnapshot(
             .putInt(ModulePreferences.KEY_RADIAL_RING_COUNT, radial.ringCount)
             .putInt(ModulePreferences.KEY_RADIAL_ITEM_GAP_DP, radial.itemGapDp)
             .putBoolean(ModulePreferences.KEY_MODULE_ENABLED, enabled)
+            .putBoolean(ModulePreferences.KEY_HIDE_SYSTEM_SIDEBAR_UI, hideSystemSidebarUi)
             .putBoolean(ModulePreferences.KEY_LEFT_CORNER_ENABLED, leftCornerEnabled)
             .putBoolean(ModulePreferences.KEY_RIGHT_CORNER_ENABLED, rightCornerEnabled)
             .putBoolean(ModulePreferences.KEY_PAUSE_IN_LANDSCAPE, pauseInLandscape)
@@ -117,6 +119,10 @@ internal data class ModuleSettingsSnapshot(
             val radialDefaults = RadialMenuSettings()
             return ModuleSettingsSnapshot(
                 enabled = enabled,
+                hideSystemSidebarUi = preferences.getBoolean(
+                    ModulePreferences.KEY_HIDE_SYSTEM_SIDEBAR_UI,
+                    ModulePreferences.DEFAULT_HIDE_SYSTEM_SIDEBAR_UI,
+                ),
                 leftCornerEnabled = if (bothCornersDisabled) true else leftEnabled,
                 rightCornerEnabled = if (bothCornersDisabled) true else rightEnabled,
                 cornerTriggerRangeDp = cornerTriggerRangeDp,

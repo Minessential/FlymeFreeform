@@ -31,6 +31,7 @@ internal fun FlymeFreeformNavHost(
     onRefreshCatalog: () -> Unit,
     onCancelCatalog: () -> Unit,
     onModuleEnabledChange: (Boolean) -> Unit,
+    onHideSystemSidebarUiChange: (Boolean) -> Unit,
     onCornerSidesChange: (Boolean, Boolean) -> Unit,
     onCornerTriggerRangeChange: (Int) -> Unit,
     onShortcutHoverDelayChange: (Int) -> Unit,
@@ -70,6 +71,7 @@ internal fun FlymeFreeformNavHost(
             ControlScreen(
                 state = state,
                 onModuleEnabledChange = onModuleEnabledChange,
+                onHideSystemSidebarUiChange = onHideSystemSidebarUiChange,
                 onCornerSidesChange = onCornerSidesChange,
                 onCornerTriggerRangeChange = onCornerTriggerRangeChange,
                 onShortcutHoverDelayChange = onShortcutHoverDelayChange,
