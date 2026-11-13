@@ -551,6 +551,20 @@ internal class ColorOsFreeformCoordinator(
     private fun launchCommittedEntry(entry: RadialEntry) {
         if (!isGestureEnvironmentAllowed()) return
         val target = entry.target
+        // 分身应用改由 system_server 直接以目标用户身份启动：扇形菜单阶段 Smart Sidebar 的 :ui
+        // 进程没有可见窗口，Android 16 的 BAL 会拦截原生路由转发的小窗启动且不报错。
+        val clone = entry.shortcutSource
+        if (target is PinnedTarget.Sidebar && target.kind == PinnedTarget.Kind.CloneApp && clone != null) {
+            when (val result =
+                launcher.launch(android.content.ComponentName(clone.packageName, clone.className), clone.userId)) {
+                FreeformLaunchResult.Started -> Unit
+                FreeformLaunchResult.TargetUnavailable ->
+                    logger(Log.WARN, "FREEFORM_CLONE_TARGET_UNAVAILABLE", null)
+                is FreeformLaunchResult.Failed ->
+                    logger(Log.WARN, result.diagnosticCode, result.cause)
+            }
+            return
+        }
         if (target is PinnedTarget.Sidebar) {
             val focus = focusedWindow() ?: return
             val rotation = context.getSystemService(android.hardware.display.DisplayManager::class.java)
